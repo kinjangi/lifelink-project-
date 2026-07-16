@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home - LifeLink</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dark-mode.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#dc3545" />
+</head>
+<body>
+  <script src="js/session.js"></script>
+  <script>
+    // Keep login even on back/forward navigation
+    Session.requireAuth();
+  </script>
+
+  <div class="mobile-topbar">
+    <button class="menu-btn" id="sidebarToggle">☰ Menu</button>
+    <div style="font-weight: 800;">🩸 LifeLink</div>
+    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">🩸 LifeLink</div>
+
+      <div class="user">
+        <div class="name" id="sidebarUserName">User</div>
+        <div class="meta" id="sidebarUserMeta"></div>
+      </div>
+
+      <div class="section">Navigation</div>
+      <nav id="regularNav">
+        <a class="nav-item" href="home.html">🏠 Home</a>
+        <a class="nav-item" href="profile.html">👤 Profile</a>
+        <a class="nav-item" href="weekly-charts.html">📊 Weekly Charts</a>
+        <a class="nav-item" href="gamification.html">🎮 Gamification</a>
+        <a class="nav-item" href="donor-dashboard.html">🩸 Donor View</a>
+        <a class="nav-item" href="receiver-dashboard.html">📥 Receiver View</a>
+        <a class="nav-item" href="precautions.html">🧾 Donor Precautions</a>
+      </nav>
+
+      <div class="section" id="adminSection" style="display:none;">Admin Panel</div>
+      <nav id="adminNav" style="display:none;">
+        <a class="nav-item" href="admin-dashboard.html">📊 Admin Dashboard</a>
+        <a class="nav-item" href="admin-view.html">⚙️ Admin Management</a>
+        <a class="nav-item" href="agent-dashboard.html">🤖 AI Agent</a>
+        <a class="nav-item" href="blockchain-records.html">🔗 Blockchain</a>
+        <a class="nav-item" href="ai-transparency.html">📈 AI Transparency</a>
+      </nav>
+
+      <div class="section">Account</div>
+      <button class="nav-item" onclick="logout()">🚪 Logout</button>
+    </aside>
+
+    <main class="content">
+      <div id="alertContainer"></div>
+
+      <div class="card">
+        <div class="card-header">Welcome to LifeLink</div>
+        <p>This is your home hub. Use the left menu to navigate.</p>
+      </div>
+
+      <!-- Live System Stats -->
+      <div class="card">
+        <div class="card-header">📊 Live System Statistics</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; text-align: center;">
+          <div class="stat-card">
+            <h3 id="statUsers" style="color: #667eea; font-size: 2rem; margin: 0.5rem 0;">--</h3>
+            <p style="margin: 0; font-weight: 600;">Total Users</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="statDonors" style="color: #dc3545; font-size: 2rem; margin: 0.5rem 0;">--</h3>
+            <p style="margin: 0; font-weight: 600;">Active Donors</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="statRequests" style="color: #f59e0b; font-size: 2rem; margin: 0.5rem 0;">--</h3>
+            <p style="margin: 0; font-weight: 600;">Pending Requests</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="statDonations" style="color: #10b981; font-size: 2rem; margin: 0.5rem 0;">--</h3>
+            <p style="margin: 0; font-weight: 600;">Completed</p>
+          </div>
+          <div class="stat-card">
+            <h3 id="statCities" style="color: #8b5cf6; font-size: 2rem; margin: 0.5rem 0;">--</h3>
+            <p style="margin: 0; font-weight: 600;">Cities Served</p>
+          </div>
+        </div>
+        <p id="statsError" style="color:#dc3545; display:none; margin-top:1rem; text-align:center;"></p>
+        <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; opacity: 0.7;">
+          🔄 Updates every 30 seconds
+        </p>
+      </div>
+
+      <div class="card" id="quickStatsCard">
+        <div class="card-header">Your Quick Stats</div>
+      </div>
+
+      <div class="dashboard-grid" id="quickStatsGrid">
+        <div class="stat-card">
+          <h3 id="dashDonations">--</h3>
+          <p><strong>My Donations</strong></p>
+        </div>
+        <div class="stat-card">
+          <h3 id="dashRequests">--</h3>
+          <p><strong>My Requests</strong></p>
+        </div>
+        <div class="stat-card">
+          <h3 id="dashProfile">--</h3>
+          <p><strong>Profile</strong></p>
+        </div>
+        <div class="stat-card">
+          <h3 id="dashDonorStatus">--</h3>
+          <p><strong>Donor Profile</strong></p>
+        </div>
+      </div>
+
+      <div class="card" id="donorPromptCard" style="display:none;">
+        <div class="card-header">Complete Donor Profile</div>
+        <p>You haven't set up a donor profile yet. <a href="donor-dashboard.html">Set it up now</a> to start donating.</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/pwa.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    // Fetch live system statistics
+    async function loadSystemStats() {
+      try {
+        const resp = await fetch(API_BASE_URL + '/api/public/stats');
+        const json = await resp.json();
+        if (json.success) {
+          animateCounter('statUsers', json.data.totalUsers);
+          animateCounter('statDonors', json.data.activeDonors);
+          animateCounter('statRequests', json.data.pendingRequests);
+          animateCounter('statDonations', json.data.completedDonations);
+          animateCounter('statCities', json.data.citiesServed);
+          // Hide error message if was showing
+          document.getElementById('statsError').style.display = 'none';
+        } else {
+          document.getElementById('statsError').textContent = 'Unable to load live stats';
+          document.getElementById('statsError').style.display = 'block';
+        }
+      } catch (e) {
+        console.error('Stats loading error:', e);
+        document.getElementById('statsError').textContent = 'Stats currently unavailable';
+        document.getElementById('statsError').style.display = 'block';
+      }
+    }
+
+    // Animate counter with smooth transition
+    function animateCounter(id, target) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      
+      const currentText = el.textContent;
+      const current = currentText === '--' ? 0 : parseInt(currentText) || 0;
+      
+      if (current === target) {
+        el.textContent = target;
+        return;
+      }
+      
+      const duration = 1000; // 1 second animation
+      const steps = 30;
+      const stepValue = (target - current) / steps;
+      const stepTime = duration / steps;
+      
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        if (step >= steps) {
+          el.textContent = target;
+          clearInterval(interval);
+        } else {
+          el.textContent = Math.round(current + (stepValue * step));
+        }
+      }, stepTime);
+    }
+
+    // Load stats immediately
+    loadSystemStats();
+    
+    // Refresh stats every 30 seconds
+    setInterval(loadSystemStats, 30000);
+
+    function isPrivilegedRole(role) {
+      return role === 'admin' || role === 'super_admin';
+    }
+
+    // Show admin navigation if user is admin/super_admin
+    const user = Session.getUser();
+    if (user && isPrivilegedRole(user.role)) {
+      // Hide regular navigation for admins
+      document.getElementById('regularNav').style.display = 'none';
+      // Show admin navigation
+      document.getElementById('adminSection').style.display = 'block';
+      document.getElementById('adminNav').style.display = 'block';
+
+      // Hide user-specific cards for privileged accounts
+      document.getElementById('quickStatsCard').style.display = 'none';
+      document.getElementById('quickStatsGrid').style.display = 'none';
+      document.getElementById('donorPromptCard').style.display = 'none';
+    }
+
+    // Fetch dashboard data
+    (async function loadDashboard() {
+      try {
+        if (user && isPrivilegedRole(user.role)) {
+          return;
+        }
+
+        const res = await apiRequest('/api/auth/dashboard');
+        if (res.success) {
+          document.getElementById('dashDonations').textContent = res.data.myDonations;
+          document.getElementById('dashRequests').textContent = res.data.myRequests;
+          document.getElementById('dashProfile').textContent = res.data.profileComplete ? '✓ Complete' : '⚠ Incomplete';
+          document.getElementById('dashDonorStatus').textContent = res.data.donorProfileExists ? '✓ Active' : '✗ Not Set';
+          if (!res.data.donorProfileExists) {
+            document.getElementById('donorPromptCard').style.display = 'block';
+          }
+        }
+      } catch (e) {
+        console.error('Dashboard load error', e);
+      }
+    })();
+  </script>
+</body>
+</html>

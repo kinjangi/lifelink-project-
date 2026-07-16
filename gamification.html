@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gamification - LifeLink</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dark-mode.css" />
+  <link rel="stylesheet" href="css/sidebar.css" />
+  <style>
+    .leaderboard-table tbody tr {
+      transition: background-color 0.2s ease;
+    }
+    .leaderboard-table tbody tr:hover {
+      background-color: #f1f3f5 !important;
+    }
+    .leaderboard-table tbody tr td {
+      padding: 12px 8px;
+      border: 1px solid #dee2e6;
+    }
+    @media (max-width: 768px) {
+      .leaderboard-table {
+        font-size: 0.85rem;
+      }
+      .leaderboard-table th,
+      .leaderboard-table td {
+        padding: 8px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="js/session.js"></script>
+  <script>Session.requireAuth();</script>
+
+  <div class="mobile-topbar">
+    <button class="menu-btn" id="sidebarToggle">☰ Menu</button>
+    <div style="font-weight: 800;">🎮 Gamification</div>
+    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">🩸 LifeLink</div>
+      <div class="user">
+        <div class="name" id="sidebarUserName">User</div>
+        <div class="meta" id="sidebarUserMeta"></div>
+      </div>
+      <div class="section">Navigation</div>
+      <nav>
+        <a class="nav-item" href="home.html">🏠 Home</a>
+        <a class="nav-item" href="profile.html">👤 Profile</a>
+        <a class="nav-item" href="weekly-charts.html">📊 Weekly Charts</a>
+        <a class="nav-item" href="gamification.html">🎮 Gamification</a>
+        <a class="nav-item" href="donor-dashboard.html">🩸 Donor View</a>
+        <a class="nav-item" href="receiver-dashboard.html">📥 Receiver View</a>
+        <a class="nav-item" href="precautions.html">🧾 Donor Precautions</a>
+      </nav>
+      <div class="section">Account</div>
+      <button class="nav-item" onclick="logout()">🚪 Logout</button>
+    </aside>
+
+    <main class="content">
+      <div id="alertContainer"></div>
+
+      <div class="card">
+        <div class="card-header">Your Gamification</div>
+        <div id="gBox">Loading...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">Leaderboard</div>
+        <div id="lBox">Loading...</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/gamification.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const client = new GamificationClient();
+
+    async function load() {
+      try {
+        const profileResponse = await client.getProfile();
+        if (!profileResponse || !profileResponse.success) {
+          throw new Error('Failed to fetch profile');
+        }
+        const profile = profileResponse.data;
+        
+        document.getElementById('gBox').innerHTML = `
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+              <div style="font-size: 2rem; font-weight: bold; color: #28a745;">${profile.points ?? 0}</div>
+              <div style="color: #6c757d; margin-top: 0.25rem;">Points</div>
+            </div>
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+              <div style="font-size: 2rem; font-weight: bold; color: #007bff;">${profile.level ?? 1}</div>
+              <div style="color: #6c757d; margin-top: 0.25rem;">Level</div>
+            </div>
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+              <div style="font-size: 2rem; font-weight: bold; color: #ffc107;">${(profile.badges || []).length}</div>
+              <div style="color: #6c757d; margin-top: 0.25rem;">Badges</div>
+            </div>
+            <div style="padding: 1rem; background: #f8f9fa; border-radius: 8px;">
+              <div style="font-size: 2rem; font-weight: bold; color: #17a2b8;">${profile.reliabilityScore ?? 0}%</div>
+              <div style="color: #6c757d; margin-top: 0.25rem;">Reliability</div>
+            </div>
+          </div>
+        `;
+
+        const lbResponse = await client.getLeaderboard(50);
+        if (!lbResponse || !lbResponse.success) {
+          throw new Error('Failed to fetch leaderboard');
+        }
+        const leaderboard = lbResponse.data || [];
+        
+        if (leaderboard.length === 0) {
+          document.getElementById('lBox').innerHTML = '<p style="text-align: center; color: #6c757d; padding: 2rem;">No donors in leaderboard yet. Be the first to donate!</p>';
+          return;
+        }
+        
+        const rows = leaderboard.map((u, idx) => {
+          const userName = u.userId?.name || 'Anonymous Donor';
+          const city = u.userId?.city || '-';
+          const bloodType = u.userId?.bloodType || '-';
+          const points = u.points || 0;
+          const donations = u.donationCount || 0;
+          const level = u.level || 1;
+          
+          // Medal for top 3
+          let medal = '';
+          if (idx === 0) medal = '🥇';
+          else if (idx === 1) medal = '🥈';
+          else if (idx === 2) medal = '🥉';
+          
+          return `
+            <tr style="${idx < 3 ? 'background: #fff3cd;' : ''}">
+              <td style="text-align: center; font-weight: bold;">${medal} ${u.rank}</td>
+              <td style="font-weight: 500;">${userName}</td>
+              <td style="text-align: center;">${city}</td>
+              <td style="text-align: center;"><span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">${bloodType}</span></td>
+              <td style="text-align: center; font-weight: bold; color: #28a745;">${points}</td>
+              <td style="text-align: center;">${donations}</td>
+              <td style="text-align: center;"><span style="background: #007bff; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.85rem;">Lvl ${level}</span></td>
+            </tr>
+          `;
+        }).join('');
+        
+        document.getElementById('lBox').innerHTML = `
+          <div style="overflow-x: auto;">
+            <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+              <thead>
+                <tr style="background: #343a40; color: white;">
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">Rank</th>
+                  <th style="padding: 12px 8px; text-align: left; border: 1px solid #dee2e6;">Donor Name</th>
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">City</th>
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">Blood Type</th>
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">Points</th>
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">Donations</th>
+                  <th style="padding: 12px 8px; text-align: center; border: 1px solid #dee2e6;">Level</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top: 1rem; padding: 0.75rem; background: #e9ecef; border-radius: 4px; text-align: center; color: #495057;">
+            <strong>Total Donors:</strong> ${leaderboard.length} heroes saving lives! 🩸
+          </div>
+        `;
+      } catch (e) {
+        console.error('Gamification error:', e);
+        document.getElementById('gBox').innerHTML = '<p style="color: #dc3545; padding: 1rem;">Gamification API not reachable yet.</p>';
+        document.getElementById('lBox').innerHTML = '<p style="color: #dc3545; padding: 1rem;">Leaderboard not reachable yet.</p>';
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>

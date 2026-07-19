@@ -88,6 +88,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'LifeLink Backend API is running',
+    version: 'CORS_FIX_V2',
     timestamp: new Date().toISOString()
   });
 });

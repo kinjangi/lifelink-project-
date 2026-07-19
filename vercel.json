@@ -2,11 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "*.html",
+      "src": "**/*.html",
       "use": "@vercel/static"
     },
     {
@@ -16,13 +12,17 @@
     {
       "src": "js/**",
       "use": "@vercel/static"
+    },
+    {
+      "src": "manifest.json",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "service-worker.js",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
-    },
     {
       "src": "/css/(.*)",
       "dest": "/css/$1"
@@ -32,15 +32,19 @@
       "dest": "/js/$1"
     },
     {
-      "src": "/",
-      "dest": "/index.html"
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/service-worker.js",
+      "dest": "/service-worker.js"
     },
     {
       "src": "/(.*)\\.html",
       "dest": "/$1.html"
     },
     {
-      "src": "/(.*)",
+      "src": "/",
       "dest": "/index.html"
     }
   ]

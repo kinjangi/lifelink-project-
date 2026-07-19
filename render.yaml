@@ -1,34 +1,26 @@
 services:
-  # Backend API
   - type: web
     name: lifelink-backend
     env: node
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server.js
+    region: singapore
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: 5000
       - key: MONGODB_URI
-        value: mongodb+srv://akhilkrishnakondri_db_user:Gr3Z0FUZGwX6G2rI@cluster0.7dzw1je.mongodb.net/lifelink?retryWrites=true&w=majority
+        sync: false
       - key: JWT_SECRET
-        value: your-super-secret-jwt-key-change-this-in-production-12345
-      - key: JWT_EXPIRE
-        value: 30d
-      - key: ML_API_URL
-        value: https://lifelink-ml.onrender.com
-      - key: ML_SERVICE_URL
-        value: https://lifelink-ml.onrender.com
+        sync: false
       - key: FRONTEND_URL
-        value: https://akhilkrishnak25.github.io/lifelink
-
-  # ML Service
-  - type: web
-    name: lifelink-ml
-    env: python
-    buildCommand: cd ml && pip install -r requirements.txt
-    startCommand: cd ml && gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120
-    envVars:
-      - key: PORT
-        value: 10000
+        sync: false
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: MAX_DISTANCE_KM
+        value: 50

@@ -16,7 +16,7 @@ const server = http.createServer(app);
 // Initialize Socket.IO
 const io = socketIO(server, {
   cors: {
-    origin: ['https://akhilkrishnak25.github.io', 'http://localhost:3000', process.env.FRONTEND_URL],
+    origin: (origin, callback) => callback(null, true),
     credentials: true,
     methods: ['GET', 'POST']
   }
@@ -30,7 +30,7 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: ['https://akhilkrishnak25.github.io', 'http://localhost:3000', process.env.FRONTEND_URL],
+  origin: (origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
